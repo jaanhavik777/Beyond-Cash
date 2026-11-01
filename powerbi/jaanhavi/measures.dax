@@ -1,0 +1,46 @@
+-- Shared measures. Paste each into Power BI: Modeling > New measure.
+-- Names must match CONTRACT.md exactly. Table names assume you loaded the CSVs with their default names:
+--   fact_payments_monthly, upi_monthly_detail, dim_date, eda_metrics, key_insights
+-- NOT RUN: I could not test DAX against your model. If a measure errors, check table/column spelling first.
+
+Total Volume (Mn) =
+SUM ( fact_payments_monthly[volume_mn] )
+
+Total Value (Cr) =
+SUM ( fact_payments_monthly[value_cr] )
+
+-- value_cr is in rupees crore (1 crore = 1e7), volume_mn in millions (1e6)
+Avg Ticket (₹) =
+DIVIDE ( [Total Value (Cr)] * 10000000, [Total Volume (Mn)] * 1000000 )
+
+-- Format as Percentage. ALL() on payment_method so the share ignores the method slicer/legend.
+UPI Share % (Volume) =
+DIVIDE (
+    CALCULATE ( [Total Volume (Mn)], fact_payments_monthly[payment_method] = "UPI" ),
+    CALCULATE ( [Total Volume (Mn)], ALL ( fact_payments_monthly[payment_method] ) )
+)
+
+UPI Share % (Value) =
+DIVIDE (
+    CALCULATE ( [Total Value (Cr)], fact_payments_monthly[payment_method] = "UPI" ),
+    CALCULATE ( [Total Value (Cr)], ALL ( fact_payments_monthly[payment_method] ) )
+)
+
+-- Format as Percentage. Needs dim_date marked as the date table.
+YoY Volume % =
+VAR cur = [Total Volume (Mn)]
+VAR prev = CALCULATE ( [Total Volume (Mn)], SAMEPERIODLASTYEAR ( dim_date[date] ) )
+RETURN DIVIDE ( cur - prev, prev )
+
+-- ---------- Extras for the story (x_ prefix) ----------
+
+-- First month UPI's volume share is above 50%. Use in an annotation card (format as Date, "mmm yyyy").
+x_UPI Crossover Month =
+VAR t =
+    ADDCOLUMNS ( ALL ( dim_date[date] ), "@share", [UPI Share % (Volume)] )
+VAR f = FILTER ( t, [@share] > 0.5 )
+RETURN MINX ( f, dim_date[date] )
+
+-- Highlight flag for the insight chart: 1 on the crossover month. Use for conditional colour.
+x_Is Crossover =
+IF ( MAX ( dim_date[date] ) = [x_UPI Crossover Month], 1, 0 )
