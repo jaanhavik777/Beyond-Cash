@@ -1,0 +1,5 @@
+order,stage,headline,detail,metric_value,metric_label
+1,hook,UPI's transaction volume share,Illustrative synthetic data: UPI's share of monthly transaction volume changes over the sample period.,92.8,UPI volume share at end (%)
+2,buildup,UPI volume growth,Illustrative synthetic data: compares UPI transaction volume at the beginning and end of the sample period.,121.5,UPI volume growth over sample (%)
+3,insight,UPI's transaction value share,Illustrative synthetic data: tracks UPI's share of the combined transaction value across the available methods.,61.86,UPI value share at end (%)
+4,conclusion,UPI average ticket size,Illustrative synthetic data: compares the average UPI transaction value at the beginning and end of the period.,-0.56,Change in average ticket size (INR)
