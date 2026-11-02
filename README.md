@@ -41,12 +41,14 @@ slides/          project deck                            (Jaanhavi)
 
 ## Start here
 1. Read `CONTRACT.md` for the exact file and column names.
-2. Read `CONTRIBUTING.md` for folder ownership and git workflow.
-3. Build against `data/sample/` until `data/clean/` has real data.
+2. Read `RULES.md` for the brief's rules and the final-review checklist.
+3. Read `CONTRIBUTING.md` for folder ownership and git workflow.
+4. Build against `data/sample/` until `data/clean/` has real data.
 
 ```bash
 git clone <repo-url> && cd upi-data-story
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python data/clean_data.py        # once Amrit has filled it in
+python scripts/check_contract.py data/sample   # validate files against CONTRACT.md
 ```

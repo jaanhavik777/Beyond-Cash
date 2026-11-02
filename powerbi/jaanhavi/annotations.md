@@ -1,16 +1,26 @@
-# Annotation text (fill from real data; delete a line if the data does not support it)
+# Annotation text, filled from the real `exports/eda_metrics.csv`
 
-Source of numbers: `exports/key_insights.csv` and the measures. Never type a number you cannot trace.
+Data window: **Apr 2023 to Mar 2025 (24 months)**, 7 payment methods. Numbers below come from the file as of your last pull. If Krishna re-exports, re-check each one against the dashboard.
 
 | Stage | Where | Text |
 |---|---|---|
-| Hook | beside visual 1 | UPI grew from **[X] million** to **[Y] million** transactions a month between **[start month]** and **[end month]**. |
-| Build-up | beside visual 2 | UPI's share of digital payment volume rose from **[A]%** to **[B]%**, while **[method]** fell from **[C]%** to **[D]%**. |
-| Insight | on visual 3, with arrow | **[Month year]:** UPI overtook every other method in volume. |
-| Insight (optional) | below visual 3 | Value share lags volume share: UPI carries **[B]%** of volume but **[E]%** of value. |
-| Conclusion | bottom box | Volume grew **[P]%** a year but value **[Q]%**, so UPI is becoming the default for small, frequent payments. |
+| Hook | beside visual 1 | UPI's share of digital payment transactions rose from **83.8%** (Apr 2023) to **88.7%** (Mar 2025). |
+| Build-up | beside visual 2 | As UPI gained, **debit cards** fell from 2.2% to 0.6% of transactions and **IMPS** from 4.7% to 2.2%. |
+| Insight | on visual 3, with the gap highlighted | UPI carries **88.7%** of transactions but only **8.2%** of value. **RTGS** carries about **71%** of value from **0.15%** of transactions. |
+| Conclusion | bottom box | In Mar 2025 UPI volume was up **36%** on the year but value only **25%**, and the average UPI payment fell **15%**, from **₹1,597 to ₹1,354**. UPI is becoming the default for small, frequent payments. |
 
-Check before using the conclusion line: it only holds if volume CAGR > value CAGR in Krishna's results. If the opposite is true, rewrite it as: "Value grew faster than volume, so average payments are getting larger."
+## Where each number comes from (for the demo and Q&A)
+| Number | Column in `eda_metrics.csv` | Row |
+|---|---|---|
+| 83.8% and 88.7% | `share_vol_pct` | UPI, Apr 2023 and Mar 2025 |
+| 8.3% and 8.2% | `share_val_pct` | UPI, Apr 2023 and Mar 2025 (range 7.5% to 10.0% in between) |
+| 36% and 25% | `yoy_vol_pct`, `yoy_val_pct` | UPI, Mar 2025 |
+| ₹1,597 and ₹1,354 | `avg_ticket_inr` | UPI, Apr 2023 and Mar 2025 |
+| Debit 2.2% to 0.6%, IMPS 4.7% to 2.2% | `share_vol_pct` | Apr 2023 and Mar 2025 |
+| RTGS about 71% value, 0.15% volume | `share_val_pct`, `share_vol_pct` | RTGS, Mar 2025 |
 
-## Anomaly note (small text under visual 1, only if Krishna flags one)
-"**[Month year]** dip: **[reason from eda_metrics.anomaly_reason]**." Leave out any anomaly labelled "unexplained".
+## Say this on the slide and in the paper
+- Shares are of the **7 methods in the dataset** (UPI, IMPS, NEFT, RTGS, debit card, credit card, NACH), not of all payments. Write "share of the payment methods covered".
+- The data window is **24 months**; year-on-year figures only exist from Apr 2024.
+- No anomalies were flagged (`is_anomaly` is False), so there is no anomaly note on the dashboard. Do not mention COVID-19.
+- "Becoming the default for small, frequent payments" is an interpretation of volume growing faster than value and the falling average ticket. It shows association, not cause.
