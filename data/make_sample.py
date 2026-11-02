@@ -9,8 +9,16 @@ rng = np.random.default_rng(7)
 dates = pd.date_range("2023-04-01", periods=24, freq="MS")
 t = np.arange(24)
 
-base = {"UPI": (8000, 0.035, 1500), "IMPS": (500, 0.01, 1800),
-        "NEFT": (400, 0.005, 33000), "Debit Card": (350, -0.005, 1800)}
+base = {
+    "UPI": (8000, 0.035, 1500),
+    "IMPS": (500, 0.01, 1800),
+    "NEFT": (400, 0.005, 33000),
+    "RTGS": (0.9, 0.005, 1200000),
+    "Debit Card": (350, -0.005, 1800),
+    "Credit Card": (250, 0.015, 3500),
+    "NACH": (150, 0.01, 4500),
+        }
+
 rows = []
 for m, (v0, g, tick) in base.items():
     vol = v0 * (1 + g) ** t * rng.normal(1, 0.015, 24)
@@ -28,5 +36,5 @@ det.to_csv(out / "upi_monthly_detail.csv", index=False)
 
 spec = importlib.util.spec_from_file_location("cd", Path(__file__).with_name("clean_data.py"))
 cd = importlib.util.module_from_spec(spec); spec.loader.exec_module(cd)
-cd.build_dim_date("2023-04-01", "2025-03-01").to_csv(out / "dim_date.csv", index=False)
+cd.create_date_dimension().to_csv(out / "dim_date.csv", index=False)
 print("wrote sample files to", out)
