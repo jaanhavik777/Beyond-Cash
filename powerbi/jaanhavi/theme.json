@@ -1,23 +1,56 @@
 {
-  "name": "Beyond Cash",
-  "dataColors": ["#1F55C9", "#8A93A3", "#B8BFCB", "#5B6475", "#0B7A5C", "#C22D72", "#D9A441", "#3A3F4B"],
-  "background": "#FFFFFF",
+  "name": "UPI India \u2013 Original Soft Teal",
+  "dataColors": [
+    "#074550",
+    "#B6DAFE",
+    "#C96A9A",
+    "#E6A8C5",
+    "#6B2CA0",
+    "#9A55C7",
+    "#B8DDF8",
+    "#0B7F86",
+    "#7E8998",
+    "#D7DEE8"
+  ],
+  "background": "#F6F7FB",
   "foreground": "#161B26",
-  "tableAccent": "#1F55C9",
-  "good": "#0B7A5C",
-  "neutral": "#D9A441",
-  "bad": "#C22D72",
-  "textClasses": {
-    "title": { "fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#161B26" },
-    "label": { "fontFace": "Segoe UI", "fontSize": 10, "color": "#566074" },
-    "callout": { "fontFace": "Segoe UI Semibold", "fontSize": 28, "color": "#1F55C9" }
-  },
+  "tableAccent": "#074550",
   "visualStyles": {
     "*": {
       "*": {
-        "title": [{ "show": true, "fontColor": { "solid": { "color": "#161B26" } }, "fontSize": 14 }],
-        "background": [{ "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
-        "border": [{ "show": false }]
+        "title": [
+          {
+            "fontFamily": "Segoe UI",
+            "fontSize": 12,
+            "fontColor": {
+              "solid": {
+                "color": "#161B26"
+              }
+            }
+          }
+        ],
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#E6E9EF"
+              }
+            },
+            "radius": 4
+          }
+        ]
       }
     }
   }
