@@ -1,0 +1,5 @@
+order,stage,headline,detail,metric_value,metric_label
+1,hook,UPI's transaction volume share,Tracks UPI's share of total transaction volume across the study period using the cleaned payment dataset.,88.7,UPI volume share at end (%)
+2,buildup,UPI volume growth,Measures the percentage change in UPI transaction volume between the first and last months of the study period.,106.49,UPI volume growth over sample (%)
+3,insight,UPI's transaction value share,Tracks UPI's share of the combined transaction value across the payment methods included in the dataset.,8.25,UPI value share at end (%)
+4,conclusion,UPI average ticket size,Measures the change in UPI's average transaction value between the first and last months of the study period.,-243.49,Change in average ticket size (INR)
