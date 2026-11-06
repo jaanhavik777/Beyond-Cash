@@ -1,14 +1,18 @@
-# Jaanhavi's Power BI build guide (Unit 2: the narrative)
+# Jaanhavi's Power BI build guide (Unit 2: the narrative), v2 for the real data
 
-Goal: one page that reads Hook → Build-up → Insight → Conclusion. Build it now on `data/sample/`, then change the source path when real data lands.
+Goal: one page that reads Hook → Build-up → Insight → Conclusion, built on the real files in `data/clean/` and `exports/`.
 
 ## 1. Load and model (20 min)
-1. Home > Get data > Text/CSV. Load `data/sample/fact_payments_monthly.csv`, `upi_monthly_detail.csv`, `dim_date.csv`. Later also `exports/eda_metrics.csv` and `exports/key_insights.csv`.
+1. Home > Get data > Text/CSV. Load `data/clean/fact_payments_monthly.csv`, `upi_monthly_detail.csv`, `dim_date.csv`, and `exports/eda_metrics.csv`. Skip `key_insights.csv` unless you want it for reference. Keep the default table names.
 2. In Power Query, check `date` is type **Date** in every table.
-3. Model view: relate `dim_date[date]` (one) to `date` in `fact_payments_monthly`, `upi_monthly_detail`, `eda_metrics` (many). Leave `key_insights` unrelated.
-4. Right-click `dim_date` > **Mark as date table** > `date`.
-5. View > Themes > Browse for themes > `theme.json`. Push this file to the repo so Kushi can use the same one.
-6. New measure for each block in `measures.dax`. Format: volume/value as whole number, share and YoY as Percentage, Avg Ticket as Decimal 0.
+3. **Model view. Power BI will auto-create relationships. Delete every one that does not involve `dim_date`** (right-click the line > Delete). Fact tables must never connect to each other, or you get "ambiguous paths".
+4. Keep exactly three relationships, each **One to many**, **Single** direction, active:
+   - `dim_date[date]` → `fact_payments_monthly[date]`
+   - `dim_date[date]` → `upi_monthly_detail[date]`
+   - `dim_date[date]` → `eda_metrics[date]`
+5. Right-click `dim_date` > **Mark as date table** > `date`.
+6. View > Themes > Browse for themes > `powerbi/jaanhavi/theme.json`.
+7. Create each measure in `measures.dax`. Formats: volume and value as whole number, shares, YoY and `x_UPI Share Gap` as Percentage, Avg Ticket as Decimal 0.
 
 ## 2. Page layout (16:9, 1280 x 720)
 ```
@@ -16,42 +20,41 @@ Goal: one page that reads Hook → Build-up → Insight → Conclusion. Build it
 | Title: Beyond Cash: UPI's rise in India's digital payments    |
 +------------------------+-----------------------------------+
 | HOOK (visual 1)        | BUILD-UP (visual 2)               |
-| line: UPI volume+value | 100% stacked col: share by method |
 | text: hook annotation  | text: build-up annotation         |
 +------------------------+-----------------------------------+
-| INSIGHT (visual 3)  highlighted turning point + annotation   |
+| INSIGHT (visual 3): volume share vs value share, gap marked  |
 +--------------------------------------------------------------+
 | CONCLUSION: one takeaway, 2-3 lines                          |
 +--------------------------------------------------------------+
 ```
-Kushi's visuals 4 and 5 and the slicers go on the right or a second page at merge time. Leave room.
+Leave room on the right for Kushi's visuals 4–5 and the slicers.
 
 ## 3. Visuals
 | # | Stage | Type | Fields | Format |
-|---|-------|------|--------|--------|
-| 1 | Hook | Line and clustered column chart | X: `dim_date[date]` (month); column: `[Total Volume (Mn)]`; line: `[Total Value (Cr)]`; filter payment_method = UPI (visual-level filter) | Title "UPI monthly volume and value"; axis titles with units |
-| 2 | Build-up | 100% stacked column | X: `dim_date[date]`; values `[Total Volume (Mn)]`; legend `payment_method` | Make UPI the first colour (blue), others in greys |
-| 3 | Insight | Line chart | X: `dim_date[date]`; Y: `[UPI Share % (Volume)]`; second line `[UPI Share % (Value)]` | Colour the crossover month's marker with conditional formatting from `[x_Is Crossover]`; add a 50% constant line (Analytics pane) |
+|---|---|---|---|---|
+| 1 | Hook | Line chart | X: `dim_date[date]`; Y: `[UPI Share % (Volume)]` | Title "UPI's share of transactions". Y axis from 80% to 90% so the rise is visible; label the first and last points (83.8%, 88.7%). |
+| 2 | Build-up | 100% stacked column | X: `dim_date[date]`; values `[Total Volume (Mn)]`; legend `payment_method` | UPI in blue, others in greys. UPI will dominate; that is the point. Optionally filter out UPI in a second small multiple to show debit card and IMPS shrinking. |
+| 3 | Insight | Line chart | X: `dim_date[date]`; Y: `[UPI Share % (Volume)]` and `[UPI Share % (Value)]` | Two lines, about 80 points apart. Blue for volume, grey for value. Label the last point of each (88.7% and 8.2%). Add a text box on the gap: "UPI: 88.7% of transactions, 8.2% of value." |
 
-Rules to hit the brief: at most 5 visuals in the final file (text boxes and slicers: ask the faculty if they count), the insight chart must show a highlight or annotation, and the conclusion is a text box, not a chart.
+Rules to hit the brief: at most 5 visuals in the final file (ask the faculty whether text boxes and slicers count), the insight chart has a highlight or annotation, and the conclusion is a text box, not a chart.
+
+Note on visual 1: your Hook should answer "why does this question matter". The rising line plus the 88.7% label does it. If you prefer to show size, use `upi_monthly_detail` volume instead.
 
 ## 4. Annotations
-Put the sentence next to each chart in a text box. Use the templates in `annotations.md`. Do not type numbers in by hand when a card can show them: add a Card visual for `[x_UPI Crossover Month]` only if you still have room under the 5-visual cap; otherwise type the number once real data is final.
+Use the filled-in sentences in `annotations.md`. Every number there is traced to a column and row in `eda_metrics.csv`.
 
-## 5. Merge test (do this early, 15 min)
-1. Ask Kushi for her current `.pbix`, or send her yours.
-2. In yours: open her file, select one of her visuals, Ctrl+C. In your file, Ctrl+V on a blank page.
-3. If the visual shows data, the measure names match. If it asks to fix fields, a name differs: compare the names to `CONTRACT.md` and rename.
-4. Check cross-filtering: click a bar on her visual 5 and watch your visuals 1–3 respond. If they don't: Format > Edit interactions.
+## 5. Merge test (15 min, do early)
+1. Ask Kushi for her current `.pbix`.
+2. Open her file, select one of her visuals, Ctrl+C. In your file, Ctrl+V on a blank page.
+3. If it shows data, measure names match. If it asks to fix fields, a name differs: compare to `CONTRACT.md`.
+4. Click a bar on her visual 5 and watch your visuals respond. If not: Format > Edit interactions.
 5. Delete the test visual afterwards.
 
-## 6. Switching to real data (when Amrit and Krishna push)
-1. `git pull`. Run `python scripts/check_contract.py data/clean exports` and expect 5 files and OK.
-2. Home > Transform data > Data source settings > Change source to `data/clean/...` and `exports/...`.
-3. Refresh. Re-check every annotation against the new numbers. Delete anything that no longer holds.
+## 6. If the data is re-exported
+`git pull`, `python scripts/check_contract.py data/clean exports` (expect 4 or 5 files, then OK), then Home > Refresh in Power BI. Re-check every number in `annotations.md`.
 
 ## 7. Done when
-- Story reads top to bottom with no explaining.
-- Hook, build-up, insight (highlighted), conclusion all present.
-- Every number on the page can be traced to `exports/` or a measure.
-- File saved as `powerbi/jaanhavi/Story_v1.pbix`, then merged into `powerbi/final/UPI_Story.pbix`.
+- The story reads top to bottom with no explaining.
+- Hook, build-up, insight (gap highlighted) and conclusion are all present.
+- Every number on the page matches `eda_metrics.csv`.
+- Saved as `powerbi/jaanhavi/Story_v1.pbix`, then merged into `powerbi/final/UPI_Story.pbix`.

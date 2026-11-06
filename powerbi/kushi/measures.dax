@@ -1,0 +1,119 @@
+-- Beyond-Cash | Kushi | Power BI DAX measure library
+-- Shared measures from Jaanhavi, with monthly-date YoY adjustment
+-- and cross-filter measure used by Visual 4.
+
+-- =========================
+-- SHARED MEASURES
+-- =========================
+
+Total Volume (Mn) =
+SUM ( fact_payments_monthly[volume_mn] )
+
+
+Total Value (Cr) =
+SUM ( fact_payments_monthly[value_cr] )
+
+
+-- Average transaction value in rupees
+Avg Ticket (₹) =
+DIVIDE (
+    [Total Value (Cr)] * 10000000,
+    [Total Volume (Mn)] * 1000000
+)
+
+
+-- UPI share of total transaction volume
+UPI Share % (Volume) =
+DIVIDE (
+    CALCULATE (
+        [Total Volume (Mn)],
+        fact_payments_monthly[payment_method] = "UPI"
+    ),
+    CALCULATE (
+        [Total Volume (Mn)],
+        ALL ( fact_payments_monthly[payment_method] )
+    )
+)
+
+
+-- UPI share of total transaction value
+UPI Share % (Value) =
+DIVIDE (
+    CALCULATE (
+        [Total Value (Cr)],
+        fact_payments_monthly[payment_method] = "UPI"
+    ),
+    CALCULATE (
+        [Total Value (Cr)],
+        ALL ( fact_payments_monthly[payment_method] )
+    )
+)
+
+
+-- Year-on-year volume growth for monthly date data
+YoY Volume % =
+VAR CurrentVolume =
+    [Total Volume (Mn)]
+VAR PriorYearVolume =
+    SUMX (
+        VALUES ( dim_date[date] ),
+        VAR CurrentMonthDate = dim_date[date]
+        VAR PriorMonthDate = EDATE ( CurrentMonthDate, -12 )
+        RETURN
+            CALCULATE (
+                [Total Volume (Mn)],
+                REMOVEFILTERS ( dim_date ),
+                dim_date[date] = PriorMonthDate
+            )
+    )
+RETURN
+    DIVIDE (
+        CurrentVolume - PriorYearVolume,
+        PriorYearVolume
+    )
+
+
+-- =========================
+-- STORY EXTRAS (x_ PREFIX)
+-- =========================
+
+-- UPI-only monthly volume
+x_UPI Volume (Mn) =
+SUM ( upi_monthly_detail[volume_mn] )
+
+
+-- First month UPI volume share exceeds 50%
+x_UPI Crossover Month =
+VAR t =
+    ADDCOLUMNS (
+        ALL ( dim_date[date] ),
+        "@share", [UPI Share % (Volume)]
+    )
+VAR f =
+    FILTER ( t, [@share] > 0.5 )
+RETURN
+    MINX ( f, dim_date[date] )
+
+
+-- Highlight flag for crossover month
+x_Is Crossover =
+IF (
+    MAX ( dim_date[date] ) = [x_UPI Crossover Month],
+    1,
+    0
+)
+
+
+-- Cross-filter measure for Visual 4
+-- Shows UPI volume when UPI or no method is selected.
+-- Returns blank for non-UPI payment methods.
+x_UPI Volume (Mn) - Cross Filter =
+VAR SelectedMethod =
+    SELECTEDVALUE ( fact_payments_monthly[payment_method] )
+RETURN
+    IF (
+        NOT ISFILTERED ( fact_payments_monthly[payment_method] )
+            || SelectedMethod = "UPI",
+        [x_UPI Volume (Mn)],
+        BLANK ()
+    )
