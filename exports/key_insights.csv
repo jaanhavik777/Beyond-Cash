@@ -1,5 +1,6 @@
 order,stage,headline,detail,metric_value,metric_label
-1,hook,UPI's transaction volume share,Tracks UPI's share of total transaction volume across the study period using the cleaned payment dataset.,88.7,UPI volume share at end (%)
-2,buildup,UPI volume growth,Measures the percentage change in UPI transaction volume between the first and last months of the study period.,106.49,UPI volume growth over sample (%)
-3,insight,UPI's transaction value share,Tracks UPI's share of the combined transaction value across the payment methods included in the dataset.,8.25,UPI value share at end (%)
-4,conclusion,UPI average ticket size,Measures the change in UPI's average transaction value between the first and last months of the study period.,-243.49,Change in average ticket size (INR)
+1,hook,UPI now carries 88.7% of transactions,"In Mar 2025, UPI handled 88.7% of the volume across the seven payment methods in the dataset.",88.7,"UPI volume share, Mar 2025 (%)"
+2,buildup,UPI gained 4.9 points of volume share in two years,"Share rose from 83.8% to 88.7% (Apr 2023 to Mar 2025), taken mainly from IMPS (-2.5 pts) and Debit Card (-1.6 pts).",4.9,UPI volume share change (pts)
+3,buildup,UPI volume grew 106% over the period,"Monthly UPI transactions grew from 8,863 mn to 18,302 mn, a compound annual rate of 46.0%.",106.49,UPI volume growth over the period (%)
+4,insight,Volume dominance is not value dominance,"UPI averaged 9.2% of value in FY2024-25 (8.3% in FY2023-24), while RTGS carried 71% of value on average.",9.17,"UPI value share, FY2024-25 average (%)"
+5,conclusion,Growth is maturing while tickets shrink,"UPI year-on-year volume growth slowed from 50.1% to 36.2%, and the average ticket fell 15.2% (INR 1,597 to INR 1,354).",36.17,"UPI YoY volume growth, Mar 2025 (%)"
