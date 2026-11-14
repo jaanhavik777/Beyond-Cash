@@ -4,3 +4,4 @@ scipy>=1.10
 matplotlib>=3.7
 pymannkendall>=1.4
 jupyter
+openpyxl>=3.1
