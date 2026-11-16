@@ -142,7 +142,61 @@ The runner executes, in order:
 
 The validation outputs are written under `data/validation/`.
 
-## 9. Related files
+9. RTGS Sensitivity Analysis
+
+Objective
+
+RTGS transactions involve substantially larger transaction values than most other digital payment methods. Their inclusion in the overall payment value denominator can make the value shares of other methods appear comparatively small.
+
+To assess this effect, two scenarios were compared:
+
+* Scenario A – Including RTGS: Calculates each payment method’s share using the total value of all seven payment methods.
+* Scenario B – Excluding RTGS: Removes RTGS from the denominator and recalculates the shares of the remaining six payment methods.
+
+The original cleaned dataset remains unchanged.
+
+Aggregate Results
+
+The analysis covers April 2023 to March 2025.
+
+Payment Method	Share Including RTGS (%)	Share Excluding RTGS (%)
+RTGS	70.5652	Not applicable
+NEFT	15.8271	53.7700
+UPI	8.7292	29.6562
+IMPS	2.5845	8.7804
+NACH	1.3408	4.5551
+Credit Card	0.7469	2.5373
+Debit Card	0.2063	0.7010
+
+Key Findings
+
+1. RTGS represents approximately 70.57% of the total payment value across the seven methods.
+2. UPI’s share increases from 8.73% to 29.66% when RTGS is excluded.
+3. This represents an increase of approximately 20.93 percentage points.
+4. NEFT’s share also increases substantially, from 15.83% to 53.77%.
+5. The changes occur because the denominator is smaller in the RTGS-excluded scenario; the actual transaction values of the remaining payment methods do not change.
+
+Interpretation and Caveat
+
+The two scenarios answer different questions. Including RTGS provides a view of the overall payment-value distribution, while excluding RTGS helps compare the value distribution among the remaining payment methods without the disproportionate influence of high-value RTGS transactions.
+
+The RTGS-excluded scenario must not be presented as the actual share of India’s total digital payment value. It is a sensitivity comparison intended to provide additional context.
+
+Reproducibility
+
+The analysis is implemented in data/rtgs_sensitivity.py and included in data/run_pipeline.py.
+
+Generated outputs:
+
+* data/validation/rtgs_monthly_sensitivity.csv
+* data/validation/rtgs_aggregate_sensitivity.csv
+* data/validation/rtgs_sensitivity_summary.csv
+
+Run the complete pipeline using:
+
+python data/run_pipeline.py
+
+## 10. Related files
 
 - `data/README.md` — data sources, pipeline and methodology overview.
 - `data/clean/DATA_DICTIONARY.md` — field-level definitions, units and source mapping.
