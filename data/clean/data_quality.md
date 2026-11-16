@@ -95,9 +95,24 @@ Output: `data/validation/upi_source_comparison.csv`
 
 ## 6. Known data treatments and scope decisions
 
-### 6.1 Exclusion of `Other`
+### 6.1 Treatment of `Other` and `Others`
 
-The final project schema contains seven agreed payment methods and does not contain an `Other` category. The category was excluded following the team's agreed scope. It should not be interpreted as a measured zero or as evidence that no other payment activity exists.
+The original RBI workbooks contain several entries labelled `Others`, but these are not one standalone payment method called `Other`.
+
+The entries occur as subcategories within existing payment modes:
+
+- `4.1.2 Others` — under Credit Cards.
+- `4.2.2 Others` — under Debit Cards.
+- `5.2.2 Others` — under Prepaid Payment Instruments.
+- `6.2 Others` — under Paper-based Instruments.
+
+The RBI workbook also contains a separate Part II section titled `A. Other Payment Channels`. This is a channel-based breakdown, distinct from the Part I payment-mode categories used for the consolidated fact table.
+
+The two NPCI UPI monthly workbooks inspected contain no cells labelled `Other`.
+
+**Treatment in this project:** The final fact table retains the seven payment methods agreed by the team: UPI, IMPS, NEFT, RTGS, Debit Card, Credit Card and NACH. The RBI `Others` subcategories and Part II channel breakdown are not added as an eighth payment method. They are not treated as measured zero values; they are outside the agreed analytical scope and are not separately represented in the consolidated fact table.
+
+**Source inspection:** All 24 retained RBI workbooks and both NPCI UPI workbooks were searched for text containing `Other`. The RBI matches were inspected in context in the March 2025 workbook to distinguish payment-mode subcategories from the separate channel breakdown. This text search establishes the presence of the labels, not a separate reconciliation of their underlying transaction values.
 
 ### 6.2 NACH aggregation
 
