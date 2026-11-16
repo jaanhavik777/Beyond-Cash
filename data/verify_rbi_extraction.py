@@ -11,11 +11,15 @@ from clean_data import (
     get_numeric_value,
 )
 
+
+# Identify RBI monthly workbooks
 files = sorted(
-    file for file in RAW_DIR.glob("*.XLSX")
+    file
+    for file in RAW_DIR.glob("*.XLSX")
     if file.name.startswith(("PAYMENTSYSTEM", "PSI"))
 )
 
+# Load cleaned fact dataset
 fact = pd.read_csv(
     RAW_DIR.parent / "clean" / "fact_payments_monthly.csv",
     parse_dates=["date"],
@@ -23,6 +27,7 @@ fact = pd.read_csv(
 
 results = []
 
+# RBI source row patterns
 patterns = {
     "NACH_CREDIT": r"^\d+\.\d+\s+nach cr",
     "NACH_DEBIT": r"^\d+\.\d+\s+nach dr",
@@ -30,8 +35,9 @@ patterns = {
     "Debit Card": r"^\d+\.\d+\s+debit cards?$",
 }
 
-for file in files:
 
+# Extract and validate RBI values
+for file in files:
     workbook = load_workbook(file, data_only=True)
     sheet = workbook.active
 
@@ -46,7 +52,6 @@ for file in files:
         source = {}
 
         for method, pattern in patterns.items():
-
             row = find_row(sheet, pattern)
 
             source[method] = {
@@ -58,6 +63,7 @@ for file in files:
                 ),
             }
 
+        # Combine NACH Credit and NACH Debit
         expected = {
             "NACH": {
                 "volume_mn": (
@@ -73,8 +79,8 @@ for file in files:
             "Debit Card": source["Debit Card"],
         }
 
+        # Compare extracted values with cleaned dataset
         for method, values in expected.items():
-
             actual = fact[
                 (fact["date"] == date)
                 & (fact["payment_method"] == method)
@@ -102,14 +108,23 @@ for file in files:
         workbook.close()
 
 
-comparison = pd.DataFrame(results)
+# Generate comparison report
+comparison = pd.DataFrame(results).sort_values(
+    ["date", "method"]
+)
+
+if len(comparison) != 72:
+    raise ValueError(
+        f"Expected 72 comparisons, found {len(comparison)}"
+    )
 
 print("\n========== RBI EXTRACTION VALIDATION ==========")
-
 print("Comparisons:", len(comparison))
 
 print(
-    comparison.groupby("method")[["volume_difference", "value_difference"]]
+    comparison.groupby("method")[
+        ["volume_difference", "value_difference"]
+    ]
     .agg(["min", "max"])
     .to_string()
 )
@@ -117,7 +132,6 @@ print(
 print("\nMaximum absolute differences:")
 
 for method, group in comparison.groupby("method"):
-
     print(
         method,
         "| Volume:",
@@ -126,9 +140,16 @@ for method, group in comparison.groupby("method"):
         group["value_difference"].abs().max(),
     )
 
+
+# Save validation report
+validation_dir = RAW_DIR.parent / "validation"
+validation_dir.mkdir(parents=True, exist_ok=True)
+
 comparison.to_csv(
-    RAW_DIR.parent / "clean" / "rbi_extraction_comparison.csv",
+    validation_dir / "rbi_extraction_comparison.csv",
     index=False,
 )
 
-print("\nSaved: data/clean/rbi_extraction_comparison.csv")
+print(
+    "\nSaved: data/validation/rbi_extraction_comparison.csv"
+)

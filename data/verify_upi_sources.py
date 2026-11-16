@@ -1,5 +1,7 @@
 from pathlib import Path
+
 import pandas as pd
+from openpyxl import load_workbook
 
 from clean_data import (
     RAW_DIR,
@@ -11,10 +13,8 @@ from clean_data import (
     get_numeric_value,
 )
 
-from openpyxl import load_workbook
 
-
-# Load NPCI UPI data
+# Load cleaned NPCI UPI dataset
 npci = pd.read_csv(
     RAW_DIR.parent / "clean" / "upi_monthly_detail.csv",
     parse_dates=["date"],
@@ -22,14 +22,15 @@ npci = pd.read_csv(
 
 results = []
 
+# Identify RBI monthly workbooks
 files = sorted(
     file
     for file in RAW_DIR.glob("*.XLSX")
     if file.name.startswith(("PAYMENTSYSTEM", "PSI"))
 )
 
+# Compare RBI UPI figures against NPCI figures
 for file in files:
-
     workbook = load_workbook(file, data_only=True)
     sheet = workbook.active
 
@@ -46,6 +47,7 @@ for file in files:
             r"^\d+\.\d+\s+upi\b",
         )
 
+        # RBI volume is reported in lakh; convert to million
         rbi_volume = (
             get_numeric_value(sheet, upi_row, volume_col) / 10
         )
@@ -78,6 +80,7 @@ for file in files:
         workbook.close()
 
 
+# Create and display comparison report
 comparison = pd.DataFrame(results).sort_values("date")
 
 print("\n========== RBI vs NPCI UPI COMPARISON ==========")
@@ -95,9 +98,17 @@ print(
     comparison["value_difference"].abs().max()
 )
 
+
+# Save validation report
+validation_dir = RAW_DIR.parent / "validation"
+validation_dir.mkdir(parents=True, exist_ok=True)
+
 comparison.to_csv(
-    RAW_DIR.parent / "clean" / "upi_source_comparison.csv",
+    validation_dir / "upi_source_comparison.csv",
     index=False,
 )
 
-print("\nComparison saved to data/clean/upi_source_comparison.csv")
+print(
+    "\nComparison saved to "
+    "data/validation/upi_source_comparison.csv"
+)
