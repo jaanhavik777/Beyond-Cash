@@ -10,6 +10,7 @@ SCRIPTS = [
     "validate_clean_data.py",
     "verify_rbi_extraction.py",
     "verify_upi_sources.py",
+    "rtgs_sensitivity.py",
 ]
 
 
