@@ -95,9 +95,24 @@ Output: `data/validation/upi_source_comparison.csv`
 
 ## 6. Known data treatments and scope decisions
 
-### 6.1 Exclusion of `Other`
+### 6.1 Treatment of `Other` and `Others`
 
-The final project schema contains seven agreed payment methods and does not contain an `Other` category. The category was excluded following the team's agreed scope. It should not be interpreted as a measured zero or as evidence that no other payment activity exists.
+The original RBI workbooks contain several entries labelled `Others`, but these are not one standalone payment method called `Other`.
+
+The entries occur as subcategories within existing payment modes:
+
+- `4.1.2 Others` — under Credit Cards.
+- `4.2.2 Others` — under Debit Cards.
+- `5.2.2 Others` — under Prepaid Payment Instruments.
+- `6.2 Others` — under Paper-based Instruments.
+
+The RBI workbook also contains a separate Part II section titled `A. Other Payment Channels`. This is a channel-based breakdown, distinct from the Part I payment-mode categories used for the consolidated fact table.
+
+The two NPCI UPI monthly workbooks inspected contain no cells labelled `Other`.
+
+**Treatment in this project:** The final fact table retains the seven payment methods agreed by the team: UPI, IMPS, NEFT, RTGS, Debit Card, Credit Card and NACH. The RBI `Others` subcategories and Part II channel breakdown are not added as an eighth payment method. They are not treated as measured zero values; they are outside the agreed analytical scope and are not separately represented in the consolidated fact table.
+
+**Source inspection:** All 24 retained RBI workbooks and both NPCI UPI workbooks were searched for text containing `Other`. The RBI matches were inspected in context in the March 2025 workbook to distinguish payment-mode subcategories from the separate channel breakdown. This text search establishes the presence of the labels, not a separate reconciliation of their underlying transaction values.
 
 ### 6.2 NACH aggregation
 
@@ -115,7 +130,48 @@ RBI transaction volume is supplied in lakh and converted to millions by dividing
 
 NPCI is the selected source for UPI in the consolidated datasets. RBI UPI values are used for cross-source comparison. The two sources should not be silently mixed within the same UPI series.
 
-## 7. Limitations and interpretation cautions
+## 7. Source-level spot checks
+
+A source-level spot-check exercise was performed against the original RBI and NPCI Excel workbooks for four selected months:
+
+- April 2023
+- July 2023
+- March 2024
+- March 2025
+
+The checks cover all seven payment methods in the consolidated fact table.
+
+| Source | Payment methods checked | Months | Comparisons | Passed |
+|---|---|---:|---:|---:|
+| RBI | RTGS, IMPS, NEFT, Credit Card, Debit Card, NACH | 4 | 24 | 24 |
+| NPCI | UPI | 4 | 4 | 4 |
+| **Total** | **7 methods** | **4** | **28** | **28** |
+
+The comparison found:
+
+| Measure | Maximum absolute difference |
+|---|---:|
+| Transaction volume | 0 million |
+| Transaction value | ₹0 crore |
+
+The checked RBI workbooks were:
+
+- April 2023: `PSIAPRIL2023B46FA1C9CBD148B0A504D9AD80B7B4E5.XLSX`
+- July 2023: `PSIJULY2023B3AD500584594351A11EA5F9F0C66672.XLSX`
+- March 2024: `PAYMENTSYSTEM032024A6C398A83D8E480CBCB72A8567367DF0.XLSX`
+- March 2025: `PSIMARCH24042025B392941E3F7346759B014AEEC4E572DB.XLSX`
+
+UPI was checked against the corresponding NPCI monthly statistics workbooks for FY2023-24 and FY2024-25.
+
+**Methodology:** The spot-check script reuses the extraction functions in `data/clean_data.py`. RBI volume is converted from lakh to million by dividing by 10. NACH Credit and NACH Debit are combined. NPCI is used as the UPI reference because it is the selected source for UPI in the consolidated dataset.
+
+The RBI workbooks contain multiple card-related rows. The extraction selects the first matching Credit Card and Debit Card transaction rows, consistent with the main cleaning pipeline. The repeated-match notes are therefore documented rather than treated as failed checks.
+
+**Interpretation and limitation:** These checks confirm that the existing extraction logic reproduces the cleaned values for the selected source workbooks and months. They provide additional source traceability but are not an independent extraction implementation or an audit of the source organizations' published statistics. They also do not replace the 24-month RBI extraction and UPI cross-source comparisons described above.
+
+Output: `data/validation/source_level_spot_checks.csv`
+
+## 8. Limitations and interpretation cautions
 
 1. **Source revisions:** RBI statistics may be provisional and can be revised. The retained raw workbooks represent the source files collected for this project; later source updates may differ.
 2. **Cross-source differences:** RBI and NPCI UPI values are not identical in every month. The comparison report preserves the observed differences.
@@ -125,7 +181,7 @@ NPCI is the selected source for UPI in the consolidated datasets. RBI UPI values
 6. **No causal inference:** Descriptive changes in payment volume, value or average ticket size do not by themselves establish why those changes occurred.
 7. **Validation scope:** Automated checks detect the tested structural and reconciliation issues. They cannot detect every possible source error, classification issue or methodological limitation.
 
-## 8. Reproduction
+## 9. Reproduction
 
 From the repository root, with the project dependencies installed:
 
@@ -139,10 +195,17 @@ The runner executes, in order:
 2. `data/validate_clean_data.py` — checks the cleaned dataset structure and expected coverage.
 3. `data/verify_rbi_extraction.py` — regenerates the RBI extraction comparison.
 4. `data/verify_upi_sources.py` — regenerates the RBI–NPCI UPI comparison.
+5. `data/rtgs_sensitivity.py` — regenerates the RTGS sensitivity analysis.
 
 The validation outputs are written under `data/validation/`.
 
-9. RTGS Sensitivity Analysis
+The selected source-level spot checks can be rerun separately using:
+
+```bash
+python data/source_spot_checks.py
+```
+
+## 10. RTGS Sensitivity Analysis
 
 Objective
 
@@ -196,7 +259,7 @@ Run the complete pipeline using:
 
 python data/run_pipeline.py
 
-## 10. Related files
+## 11. Related files
 
 - `data/README.md` — data sources, pipeline and methodology overview.
 - `data/clean/DATA_DICTIONARY.md` — field-level definitions, units and source mapping.
@@ -204,5 +267,7 @@ python data/run_pipeline.py
 - `data/validate_clean_data.py` — structural and completeness checks.
 - `data/verify_rbi_extraction.py` — selected RBI extraction reconciliation.
 - `data/verify_upi_sources.py` — RBI–NPCI UPI source comparison.
+- `data/source_spot_checks.py` — selected-month source-level spot checks.
 - `data/validation/rbi_extraction_comparison.csv` — 72 RBI comparisons.
 - `data/validation/upi_source_comparison.csv` — 24 UPI monthly comparisons.
+- `data/validation/source_level_spot_checks.csv` — 28 selected-month source comparisons.
